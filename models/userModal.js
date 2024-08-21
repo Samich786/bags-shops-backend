@@ -1,22 +1,22 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 mongoose.connect("mongodb://127.0.0.1:27017/ecomShop");
 
-const userSchems = mongoose.Schema({
-    fullname: String,
-    email: String,
-    password: String,
-    isAdmin: Boolean,
-    cart:{
-        type:Array,
-        default:[],
-    },
-    orders:{
-        type:Array,
-        default:[],
-    },
-    contact:Number,
-    picture: String,
+const userSchema = mongoose.Schema({
+  fullname: String,
+  email: String,
+  password: String,
+  isAdmin: Boolean,
+  cart: {
+    type: Array,
+    default: [],
+  },
+  orders: {
+    type: Array,
+    default: [],
+  },
+  contact: Number,
+  picture: String,
 });
 
-module.exports = mongoose.model('user', userSchems);
+module.exports = mongoose.model("user", userSchema);
