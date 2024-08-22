@@ -1,7 +1,6 @@
-const jwt = require('jsonwebtoken');
-const config = require('../config');
+const jwt = require("jsonwebtoken");
 
-module.exports = async (user) => {
+module.exports = (user) => {
   const payload = {
     id: user.id,
     email: user.email,
