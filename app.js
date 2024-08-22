@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 
@@ -8,8 +9,11 @@ const ownerRouter = require("./routes/ownerRouter");
 const productRouter = require("./routes/productRouter");
 const userRouter = require("./routes/userRouter");
 const db = require("./config/mangoose-connection");
-require("dotenv").config();
+const cors = require('./utils/cors');
 
+
+
+app.use(cors);
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());

@@ -4,28 +4,16 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const path = require("path");
 const generateToken = require("../utils/generateToken");
+const upload = require("../utils/multer");
 
 // Setup multer storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./public/images");
-  },
-  filename: function (req, file, cb) {
-    crypto.randomBytes(16, function (err, buf) {
-      if (err) return cb(err);
-      const bytes = buf.toString("hex") + path.extname(file.originalname);
-      cb(null, bytes);
-    });
-  },
-});
+
 
 // Create multer upload instance
-const upload = multer({ storage: storage });
+
 
 // Controller function
-module.exports.registerUser = [
-  upload.single("picture"), // Apply multer middleware
-  async (req, res) => {
+module.exports.registerUser =  async (req, res) => {
     try {
       console.log(req.body); // Ensure this logs the form data
       let { fullname, email, password, contact } = req.body;
@@ -51,7 +39,7 @@ module.exports.registerUser = [
       res.status(400).send(err.message);
     }
   },
-];
+
 
 //  login
 module.exports.loginUser = async (req, res) => {
@@ -67,7 +55,13 @@ module.exports.loginUser = async (req, res) => {
         } else {
           let token = generateToken(user);
           console.log(token);
-
+          res.cookie('token', token, {
+            httpOnly: true, // Prevents JavaScript from accessing the cookie
+            // secure: process.env.NODE_ENV === 'production', // Send cookie over HTTPS in production
+            secure:false,
+            sameSite: 'Strict', // Helps prevent CSRF attacks
+            maxAge: 24 * 60 * 60 * 1000 // 1 day in milliseconds
+          });
           res.send({
             data: {
               message: "Login Scussesfully",
