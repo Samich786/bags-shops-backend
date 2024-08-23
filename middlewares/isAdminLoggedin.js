@@ -5,7 +5,8 @@ const JWT_KEY = process.env.JWT_KEY;
 module.exports = async (req, res, next) => {
   try {
     // Extract the token directly
-    const token = req.headers.authorization;
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
 
     if (token) {
       console.log(token); // For debugging
@@ -32,7 +33,7 @@ module.exports = async (req, res, next) => {
         }
       });
     } else {
-      res.status(401).redirect("/login");
+      res.status(401).send("Unauthorized");
     }
   } catch (error) {
     console.error("Middleware error:", error); // Detailed error logging
