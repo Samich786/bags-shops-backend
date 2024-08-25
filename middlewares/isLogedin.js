@@ -1,30 +1,42 @@
+// userMiddleware.js
 const jwt = require("jsonwebtoken");
 const userModal = require("../models/userModal");
 const JWT_KEY = process.env.JWT_KEY;
-module.exports = async (req, res, next) => {
+
+const isLogedin = async (req, res, next) => {
   try {
-    const token = req.headers.authorization;
+    // Extract the token directly
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
+
     if (token) {
       jwt.verify(token, JWT_KEY, async (err, decoded) => {
         if (err) {
+          console.error("JWT verification error (User):", err); // Detailed error logging
           res.status(401).send("Invalid token");
         } else {
           const { id } = decoded;
-          await userModal.findById(id, (err, user) => {
+          try {
+            const user = await userModal.findById(id);
             if (user) {
               req.user = user;
               next();
             } else {
               res.status(401).send("Invalid token");
             }
-          });
+          } catch (error) {
+            console.error("Error fetching user:", error); // Detailed error logging
+            res.status(401).send("Error fetching user");
+          }
         }
       });
     } else {
-      res.status(401).redirect("/login");
+      res.status(401).send("Unauthorized");
     }
   } catch (error) {
-    console.log(error);
-    res.status(401).redirect("/login");
+    console.error("Middleware error:", error); // Detailed error logging
+    res.status(401).send("Unauthorized");
   }
 };
+
+module.exports = isLogedin;

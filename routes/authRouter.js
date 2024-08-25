@@ -1,20 +1,42 @@
 const express = require("express");
 const router = express.Router();
-const isAdminLoggedin = require("../middlewares/isAdminLoggedin");
-const isLogedin = require("../middlewares/isLogedin");
+const checkLoggedIn = require("../middlewares/checkedLoginUser");
+const {loginUser} = require("../controllers/authController");
+const e = require("express");
 console.log(process.env.NODE_ENV);
 
 // me api setting
-router.get("/me", isAdminLoggedin || isLogedin, (req, res) => {
+
+router.post("/login", loginUser);
+router.get("/me", checkLoggedIn, (req, res) => {
   // Send a JSON response to the client
-  req.res.status(200).send({
-    data: {
-      message: "Hello World",
-      status: 200,
-      data: req.owner,
-    },
-  });
+  if (req.user) {
+    res.status(200).send({
+      data: {
+        message: "Hello World User",
+        status: 200,
+        data: req.user,
+      },
+    });
+  } else if (req.owner) {
+    res.status(200).send({
+      data: {
+        message: "Hello World Owner",
+        status: 200,
+        data: req.owner,
+      },
+    });
+  } else {
+    res.status(200).send({
+      data: {
+        message: "Not Logged In",
+        status: 200,
+        data: null,
+      },
+    });
+  }
 });
+
 
 // logout route
 router.post("/logout", (req, res) => {

@@ -1,42 +1,44 @@
+// ownerMiddleware.js
 const jwt = require("jsonwebtoken");
 const ownerModal = require("../models/ownerModal");
 const JWT_KEY = process.env.JWT_KEY;
 
-module.exports = async (req, res, next) => {
+const isAdminLoggedin = async (req, res, next) => {
   try {
     // Extract the token directly
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
 
     if (token) {
-      console.log(token); // For debugging
-      console.log(JWT_KEY); // For debugging
-
       jwt.verify(token, JWT_KEY, async (err, decoded) => {
+        console.log(decoded);
         if (err) {
-          console.error("JWT verification error:", err); // Detailed error logging
-          res.status(401).send("Invalid token");
+          console.error("JWT verification error (Owner):", err); // Detailed error logging
+          return next(); // Call next to allow checkLoggedIn to try the next middleware
         } else {
           const { id } = decoded;
+          console.log(id);
           try {
-            const owner = await ownerModal.findById(id);
+            const owner = await ownerModal.findOne({ _id: id });
             if (owner) {
               req.owner = owner;
-              next();
+              return next();
             } else {
-              res.status(401).send("Invalid token");
+              return next(); // Continue to checkLoggedIn for user check
             }
           } catch (error) {
             console.error("Error fetching owner:", error); // Detailed error logging
-            res.status(401).send("Error fetching owner");
+            return next(); // Continue to checkLoggedIn for user check
           }
         }
       });
     } else {
-      res.status(401).send("Unauthorized");
+      return next(); // Continue to checkLoggedIn for user check
     }
   } catch (error) {
     console.error("Middleware error:", error); // Detailed error logging
-    res.status(401).redirect("/login");
+    return next(); // Continue to checkLoggedIn for user check
   }
 };
+
+module.exports = isAdminLoggedin;

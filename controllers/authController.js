@@ -1,4 +1,5 @@
 const userModal = require("../models/userModal");
+const ownerModal = require("../models/ownerModal");
 const bcrypt = require("bcrypt");
 const generateToken = require("../utils/generateToken");
 
@@ -6,8 +7,8 @@ const generateToken = require("../utils/generateToken");
 
 // Create multer upload instance
 
-// Controller function
-(module.exports.registerUser = async (req, res) => {
+// Controller function register user controller
+module.exports.registerUser = async (req, res) => {
   try {
     console.log(req.body); // Ensure this logs the form data
     let { fullname, email, password, contact } = req.body;
@@ -34,43 +35,105 @@ const generateToken = require("../utils/generateToken");
       });
     });
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send({
+      data: {
+        message: err.message,
+        status: 500,
+      },
+    })
+    
   }
-}),
-  //  login
-  (module.exports.loginUser = async (req, res) => {
+},
+  //  login user controller
+  module.exports.loginUser = async (req, res) => {
     try {
-      let { email, password } = req.body;
-      let user = await userModal.findOne({ email: email });
-      if (!user) {
-        res.status(404).send("Invalid email or password");
+      const { email, password } = req.body;
+  
+      // Determine if the email belongs to a user or an owner
+      let user;
+      let userType; // 'user' or 'owner'
+  
+      // Check if the email belongs to a user
+      user = await userModal.findOne({ email: email });
+      if (user) {
+        userType = 'user';
       } else {
-        bcrypt.compare(password, user.password, function (err, result) {
-          if (!result) {
-            res.status(404).send("Invalid email or password");
-          } else {
-            let token = generateToken(user);
-            console.log(token);
-            res.cookie("token", token, {
-              httpOnly: true, // Prevents JavaScript from accessing the cookie
-              // secure: process.env.NODE_ENV === 'production', // Send cookie over HTTPS in production
-              secure: false,
-              sameSite: "Strict", // Helps prevent CSRF attacks
-              maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
-            });
-            res.send({
-              data: {
-                message: "Login Scussesfully",
-                status: 200,
-                data: {
-                  token: token,
-                },
-              },
-            });
-          }
-        });
+        // Check if the email belongs to an owner
+        user = await ownerModal.findOne({ email: email });
+        if (user) {
+          userType = 'owner';
+        } else {
+          return res.status(404).send("Invalid email or password");
+        }
       }
+  
+      // Compare password
+      bcrypt.compare(password, user.password, function (err, result) {
+        if (!result) {
+          return res.status(404).send("Invalid email or password");
+        }
+  
+        // Generate token
+        let token = generateToken(user);
+  
+        // Send cookie and response
+        res.cookie("token", token, {
+          httpOnly: true, // Prevents JavaScript from accessing the cookie
+          secure: false, // Change to true in production
+          sameSite: "Strict", // Helps prevent CSRF attacks
+          maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+        });
+  
+        res.send({
+          data: {
+            message: "Login Successful",
+            status: 200,
+            data: {
+              token: token,
+              userType: userType, // Include userType in response
+            },
+          },
+        });
+      });
     } catch (err) {
-      res.status(400).send(err.message);
+      res.status(500).send({
+        data: {
+          message: err.message,
+          status: 500,
+        },
+      });
     }
-  });
+  };
+  
+
+// Controller function get user controller
+module.exports.getUser = async (req, res) => {
+  try {
+    let user = await userModal.find();
+    if (!user) {
+      res.status(400).send({
+        data: {
+          message: "user not found",
+          status: 400,
+        },
+      });
+    } else {
+      res.send({
+        data: {
+          message: "user found",
+          status: 200,
+          data: {
+            user,
+          },
+        },
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      data: {
+        message: err.message,
+        status: 500,
+      },
+    })
+  }
+};
