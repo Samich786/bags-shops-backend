@@ -19,7 +19,7 @@ module.exports.createProduct = async (req, res) => {
       isNewArrival,
       isPopular,
       discountPercentage,
-      endDate
+      endDate,
     } = req.body;
 
     // Base URL for serving images
@@ -29,9 +29,8 @@ module.exports.createProduct = async (req, res) => {
     const imagePath = `${baseUrl}/images/${req.file.filename}`;
 
     // Calculate discount price
-    const discountPrice = discountPercentage > 0 
-      ? price - (price * discountPercentage) / 100 
-      : 0; // Set to 0 if discountPercentage is 0
+    const discountPrice =
+      discountPercentage > 0 ? price - (price * discountPercentage) / 100 : 0; // Set to 0 if discountPercentage is 0
     // Create the product with the full URL for the image
     let product = await productModal.create({
       name,
@@ -71,7 +70,14 @@ module.exports.createProduct = async (req, res) => {
 // Get products controller
 module.exports.getProducts = async (req, res) => {
   try {
-    const { page = 1, limit = 10, category, discount, isNewArrival, isPopular } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      category,
+      discount,
+      isNewArrival,
+      isPopular,
+    } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const filters = {};
 
@@ -80,23 +86,23 @@ module.exports.getProducts = async (req, res) => {
       filters.category = category.trim();
     }
 
-    if (discount === 'true') {
+    if (discount === "true") {
       filters.isDiscount = true;
-     
     }
 
-    if (isNewArrival === 'true') {
+    if (isNewArrival === "true") {
       filters.isNewArrival = true;
     }
 
-    if (isPopular === 'true') {
+    if (isPopular === "true") {
       filters.isPopular = true;
     }
 
-    console.log(filters);
-    
+    // console.log(filters);
+
     // Fetch products with filters, pagination, and limit
-    const products = await productModal.find(filters)
+    const products = await productModal
+      .find(filters)
       .skip(skip)
       .limit(parseInt(limit));
 
@@ -106,7 +112,7 @@ module.exports.getProducts = async (req, res) => {
       data: {
         message: "Products Retrieved Successfully",
         status: 200,
-        data: { 
+        data: {
           products,
           totalProducts, // Optional: include total count for pagination
           totalPages: Math.ceil(totalProducts / parseInt(limit)),

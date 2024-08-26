@@ -17,7 +17,7 @@ const isAdminLoggedin = async (req, res, next) => {
           return next(); // Call next to allow checkLoggedIn to try the next middleware
         } else {
           const { id } = decoded;
-          console.log(id);
+          // console.log(id);
           try {
             const owner = await ownerModal.findOne({ _id: id });
             if (owner) {

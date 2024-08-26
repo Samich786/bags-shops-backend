@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const checkLoggedIn = require("../middlewares/checkedLoginUser");
-const {loginUser} = require("../controllers/authController");
+const { loginUser } = require("../controllers/authController");
 const e = require("express");
 console.log(process.env.NODE_ENV);
 
@@ -10,12 +10,17 @@ console.log(process.env.NODE_ENV);
 router.post("/login", loginUser);
 router.get("/me", checkLoggedIn, (req, res) => {
   // Send a JSON response to the client
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
   if (req.user) {
     res.status(200).send({
       data: {
         message: "Hello World User",
         status: 200,
-        data: req.user,
+        data: {
+          user: req.user,
+          // token: token,
+        },
       },
     });
   } else if (req.owner) {
@@ -23,7 +28,10 @@ router.get("/me", checkLoggedIn, (req, res) => {
       data: {
         message: "Hello World Owner",
         status: 200,
-        data: req.owner,
+        data: {
+          owner: req.owner,
+          // token: token,
+        },
       },
     });
   } else {
@@ -36,7 +44,6 @@ router.get("/me", checkLoggedIn, (req, res) => {
     });
   }
 });
-
 
 // logout route
 router.post("/logout", (req, res) => {

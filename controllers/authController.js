@@ -8,9 +8,9 @@ const generateToken = require("../utils/generateToken");
 // Create multer upload instance
 
 // Controller function register user controller
-module.exports.registerUser = async (req, res) => {
+(module.exports.registerUser = async (req, res) => {
   try {
-    console.log(req.body); // Ensure this logs the form data
+    // console.log(req.body); // Ensure this logs the form data
     let { fullname, email, password, contact } = req.body;
 
     let user = await userModal.findOne({ email: email });
@@ -31,7 +31,12 @@ module.exports.registerUser = async (req, res) => {
           role: "user",
           picture: imagePath, // Store the file path in the database
         });
-        res.send(createUser);
+        res.status(201).send({
+          data: {
+            message: "User created successfully",
+            status: 201,
+          },
+        });
       });
     });
   } catch (err) {
@@ -40,42 +45,41 @@ module.exports.registerUser = async (req, res) => {
         message: err.message,
         status: 500,
       },
-    })
-    
+    });
   }
-},
+}),
   //  login user controller
-  module.exports.loginUser = async (req, res) => {
+  (module.exports.loginUser = async (req, res) => {
     try {
       const { email, password } = req.body;
-  
+
       // Determine if the email belongs to a user or an owner
       let user;
       let userType; // 'user' or 'owner'
-  
+
       // Check if the email belongs to a user
       user = await userModal.findOne({ email: email });
       if (user) {
-        userType = 'user';
+        userType = "user";
       } else {
         // Check if the email belongs to an owner
         user = await ownerModal.findOne({ email: email });
         if (user) {
-          userType = 'owner';
+          userType = "owner";
         } else {
           return res.status(404).send("Invalid email or password");
         }
       }
-  
+
       // Compare password
       bcrypt.compare(password, user.password, function (err, result) {
         if (!result) {
           return res.status(404).send("Invalid email or password");
         }
-  
+
         // Generate token
         let token = generateToken(user);
-  
+
         // Send cookie and response
         res.cookie("token", token, {
           httpOnly: true, // Prevents JavaScript from accessing the cookie
@@ -83,7 +87,7 @@ module.exports.registerUser = async (req, res) => {
           sameSite: "Strict", // Helps prevent CSRF attacks
           maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
         });
-  
+
         res.send({
           data: {
             message: "Login Successful",
@@ -103,8 +107,7 @@ module.exports.registerUser = async (req, res) => {
         },
       });
     }
-  };
-  
+  });
 
 // Controller function get user controller
 module.exports.getUser = async (req, res) => {
@@ -134,6 +137,6 @@ module.exports.getUser = async (req, res) => {
         message: err.message,
         status: 500,
       },
-    })
+    });
   }
 };
