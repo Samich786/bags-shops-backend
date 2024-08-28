@@ -131,6 +131,99 @@ module.exports.getProducts = async (req, res) => {
   }
 };
 
+// get categories list
+module.exports.getCategoriesWithProductCount = async (req, res) => {
+  try {
+   let  categories = [
+      {
+        id: 1,
+        name: "Electronics",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 2,
+        name: "Clothing",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 3,
+        name: "Footwear",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 4,
+        name: "Shoes",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 5,
+        name: "Sports Products",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 6,
+        name: "Watches",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 7,
+        name: "Beauty Fashion",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 8,
+        name: "Tech Devices",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 9,
+        name: "Kids Products",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 10,
+        name: "Home Decor",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+    ];
+    // Create a copy of the categories array to avoid mutation
+    const categoriesWithCounts = await Promise.all(
+      categories.map(async (category) => {
+        const count = await productModal.countDocuments({ category: category.id });
+        return {
+          ...category,
+          productCount: count,
+        };
+      })
+    );
+
+    res.send({
+      data: {
+        message: "Categories Retrieved Successfully",
+        status: 200,
+        categories: categoriesWithCounts,
+      },
+    });
+  } catch (err) {
+    res.status(500).send({
+      data: {
+        message: err.message,
+        status: 500,
+      },
+    });
+  }
+};
+
 // get popular products
 module.exports.getPopularProducts= async (req,res)=>{
   try{
