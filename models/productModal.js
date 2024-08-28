@@ -4,7 +4,7 @@ const productSchema = new mongoose.Schema({
   name: String,
   picture: String,
   price: Number,
-  textcolor: String,
+  // textcolor: String,
   description: String,
   category: String,
   discountPrice: Number,
@@ -17,8 +17,11 @@ const productSchema = new mongoose.Schema({
       type: Date,
     }, // End date of the discount
   },
-  bgcolor: String,
-  panelcolor: String,
+  raring: {
+    type: Number,
+    default: 0,
+  },
+  // panelcolor: String,
   isNewArrival: { // Boolean to mark new arrivals
     type: Boolean,
     default: false,

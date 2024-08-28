@@ -14,9 +14,8 @@ module.exports.createProduct = async (req, res) => {
       price,
       description,
       category,
-      textcolor,
-      bgcolor,
-      panelcolor,
+      rating,
+      
       isNewArrival,
       isPopular,
       discountPercentage,
@@ -39,13 +38,11 @@ module.exports.createProduct = async (req, res) => {
       description,
       category,
       picture: imagePath, // Store full URL instead of relative path
-      textcolor,
-      bgcolor,
-      panelcolor,
+     rating:rating,
       discountPrice,
       discount: {
         percentageValue: discountPercentage || 0,
-        endDate: endDate,
+        endDate: Date.now(),
       },
       isNewArrival,
       isPopular,
@@ -131,75 +128,75 @@ module.exports.getProducts = async (req, res) => {
   }
 };
 
+const categories = [
+  {
+    id: 'Electronics',
+    name: 'Electronics',
+    img: '/image/cam.jpg',
+    count: 100,
+  },
+  {
+    id: 'Clothing',
+    name: 'Clothing',
+    img: '/image/cam.jpg',
+    count: 100,
+  },
+  {
+    id: 'Shoes',
+    name: 'Shoes',
+    img: '/image/cam.jpg',
+    count: 100,
+  },
+  {
+    id: 'Sports Products',
+    name: "Sports Products",
+    img: "/image/cam.jpg",
+    count: 100,
+  },
+  {
+    id: 'Watches',
+    name: "Watches",
+    img: "/image/cam.jpg",
+    count: 100,
+  },
+  {
+    id: 'Beauty Fashion',
+    name: "Beauty Fashion",
+    img: "/image/cam.jpg",
+    count: 100,
+  },
+  {
+    id: 'Tech Devices',
+    name: "Tech Devices",
+    img: "/image/cam.jpg",
+    count: 100,
+  },
+  {
+    id: 'Kids Products',
+    name: "Kids Products",
+    img: "/image/cam.jpg",
+    count: 100,
+  },
+  {
+    id: 'Home Decor',
+    name: "Home Decor",
+    img: "/image/cam.jpg",
+    count: 100,
+  },
+  // ...other categories
+];
+
 // get categories list
 module.exports.getCategoriesWithProductCount = async (req, res) => {
   try {
-   let  categories = [
-      {
-        id: 1,
-        name: "Electronics",
-        img: "/image/cam.jpg",
-        count: 100,
-      },
-      {
-        id: 2,
-        name: "Clothing",
-        img: "/image/cam.jpg",
-        count: 100,
-      },
-      {
-        id: 3,
-        name: "Footwear",
-        img: "/image/cam.jpg",
-        count: 100,
-      },
-      {
-        id: 4,
-        name: "Shoes",
-        img: "/image/cam.jpg",
-        count: 100,
-      },
-      {
-        id: 5,
-        name: "Sports Products",
-        img: "/image/cam.jpg",
-        count: 100,
-      },
-      {
-        id: 6,
-        name: "Watches",
-        img: "/image/cam.jpg",
-        count: 100,
-      },
-      {
-        id: 7,
-        name: "Beauty Fashion",
-        img: "/image/cam.jpg",
-        count: 100,
-      },
-      {
-        id: 8,
-        name: "Tech Devices",
-        img: "/image/cam.jpg",
-        count: 100,
-      },
-      {
-        id: 9,
-        name: "Kids Products",
-        img: "/image/cam.jpg",
-        count: 100,
-      },
-      {
-        id: 10,
-        name: "Home Decor",
-        img: "/image/cam.jpg",
-        count: 100,
-      },
-    ];
     // Create a copy of the categories array to avoid mutation
     const categoriesWithCounts = await Promise.all(
       categories.map(async (category) => {
+        // Ensure you match with the category name in the database
+        // console.log('Checking count for category:', category.id);
+
         const count = await productModal.countDocuments({ category: category.id });
+        // console.log(`Category: ${category.id}, Product Count: ${count}`)
         return {
           ...category,
           productCount: count,
