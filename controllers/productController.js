@@ -129,7 +129,108 @@ module.exports.getProducts = async (req, res) => {
     });
   }
 };
+// get categories list
+module.exports.getCategoriesWithProductCount = async (req, res) => {
+  try {
+    // Get all unique categories with their product counts
+    const categoriesWithCounts = await productModal.aggregate([
+      {
+        $group: {
+          _id: "$category", // Group by category
+          count: { $sum: 1 }, // Count the number of products in each category
+        },
+      },
+    ]);
 
+    // Transform the aggregated data to match your categories structure
+    const categories = [
+      {
+        id: 1,
+        name: "Electronics",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 2,
+        name: "Clothing",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 3,
+        name: "Footwear",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 4,
+        name: "Shoes",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 5,
+        name: "Sports Products",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 6,
+        name: "Watches",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 7,
+        name: "Beauty Fashion",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 8,
+        name: "Tech Devices",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 9,
+        name: "Kids Products",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+      {
+        id: 10,
+        name: "Home Decor",
+        img: "/image/cam.jpg",
+        count: 100,
+      },
+    ];
+    // ... include all your other categories here
+
+    // Map the product counts to your categories array
+    categoriesWithCounts.forEach((category) => {
+      const index = categories.findIndex((cat) => cat.name === category._id);
+      if (index !== -1) {
+        categories[index].count = category.count;
+      }
+    });
+
+    res.send({
+      data: {
+        message: "Categories Retrieved Successfully",
+        status: 200,
+        data: categories,
+      },
+    });
+  } catch (err) {
+    res.status(500).send({
+      data: {
+        message: err.message,
+        status: 500,
+      },
+    });
+  }
+};
 // get Single product controller
 module.exports.getproductById = async (req, res) => {
   try {
