@@ -1,3 +1,4 @@
+const c = require("config");
 const ownerModal = require("../models/ownerModal");
 const productModal = require("../models/productModal");
 
@@ -130,6 +131,73 @@ module.exports.getProducts = async (req, res) => {
   }
 };
 
+// get popular products
+module.exports.getPopularProducts= async (req,res)=>{
+  try{
+    const products = await productModal.find({
+      isPopular: true,
+    });
+    res.send({
+      data: {
+        message: "Popular Products Retrieved Successfully",
+        status: 200,
+        data: { products },
+      },
+    });
+  }catch(err){
+    res.status(500).send({
+      data: {
+        error: err.message,
+        status: 500,
+      },
+    });
+  }
+},
+// get New Arrival
+module.exports.getNewArrival = async (req,res)=>{
+try{
+const products = await productModal.find({
+  isNewArrival: true,
+});
+res.send({
+  data: {
+    message: "New Arrival Products Retrieved Successfully",
+    status: 200,
+    data: { products },
+  },
+});
+}catch(err){
+  res.status(500).send({
+    data:{
+      error:err.message,
+      status:500
+    }
+  })
+}
+}
+
+// get all discount products
+module.exports.getDiscountProducts = async (req,res)=>{
+try{
+const products = await productModal.find({
+  isDiscount: true,
+});
+res.send({
+  data: {
+    message: "Discount Products Retrieved Successfully",
+    status: 200,
+    data: { products },
+  },
+});
+}catch(err){
+  res.status(500).send({
+    data:{
+      error:err.message,
+      status:500
+    }
+  })
+}
+},
 // get Single product controller
 module.exports.getproductById = async (req, res) => {
   try {
