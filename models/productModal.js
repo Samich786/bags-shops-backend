@@ -17,7 +17,7 @@ const productSchema = new mongoose.Schema({
       type: Date,
     }, // End date of the discount
   },
-  raring: {
+  rating: {
     type: Number,
     default: 0,
   },

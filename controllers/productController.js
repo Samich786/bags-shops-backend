@@ -14,8 +14,6 @@ module.exports.createProduct = async (req, res) => {
       price,
       description,
       category,
-      rating,
-      
       isNewArrival,
       isPopular,
       discountPercentage,
@@ -38,11 +36,11 @@ module.exports.createProduct = async (req, res) => {
       description,
       category,
       picture: imagePath, // Store full URL instead of relative path
-     rating:rating,
+      rating: 1,
       discountPrice,
       discount: {
         percentageValue: discountPercentage || 0,
-        endDate: Date.now(),
+        endDate: endDate,
       },
       isNewArrival,
       isPopular,
@@ -130,57 +128,57 @@ module.exports.getProducts = async (req, res) => {
 
 const categories = [
   {
-    id: 'Electronics',
-    name: 'Electronics',
-    img: '/image/cam.jpg',
+    id: "Electronics",
+    name: "Electronics",
+    img: "/image/electronics.png",
     count: 100,
   },
   {
-    id: 'Clothing',
-    name: 'Clothing',
-    img: '/image/cam.jpg',
+    id: "Clothing",
+    name: "Clothing",
+    img: "/image/cloth.png",
     count: 100,
   },
   {
-    id: 'Shoes',
-    name: 'Shoes',
-    img: '/image/cam.jpg',
+    id: "Shoes",
+    name: "Shoes",
+    img: "/image/footwear.png",
     count: 100,
   },
   {
-    id: 'Sports Products',
+    id: "Sports Products",
     name: "Sports Products",
-    img: "/image/cam.jpg",
+    img: "/image/sports.png",
     count: 100,
   },
   {
-    id: 'Watches',
+    id: "Watches",
     name: "Watches",
-    img: "/image/cam.jpg",
+    img: "/image/watches.png",
     count: 100,
   },
   {
-    id: 'Beauty Fashion',
+    id: "Beauty Fashion",
     name: "Beauty Fashion",
-    img: "/image/cam.jpg",
+    img: "/image/beauty.png",
     count: 100,
   },
   {
-    id: 'Tech Devices',
+    id: "Tech Devices",
     name: "Tech Devices",
-    img: "/image/cam.jpg",
+    img: "/image/tech.png",
     count: 100,
   },
   {
-    id: 'Kids Products',
+    id: "Kids Products",
     name: "Kids Products",
-    img: "/image/cam.jpg",
+    img: "/image/kids.png",
     count: 100,
   },
   {
-    id: 'Home Decor',
+    id: "Home Decor",
     name: "Home Decor",
-    img: "/image/cam.jpg",
+    img: "/image/decor.png",
     count: 100,
   },
   // ...other categories
@@ -195,7 +193,9 @@ module.exports.getCategoriesWithProductCount = async (req, res) => {
         // Ensure you match with the category name in the database
         // console.log('Checking count for category:', category.id);
 
-        const count = await productModal.countDocuments({ category: category.id });
+        const count = await productModal.countDocuments({
+          category: category.id,
+        });
         // console.log(`Category: ${category.id}, Product Count: ${count}`)
         return {
           ...category,
@@ -222,8 +222,8 @@ module.exports.getCategoriesWithProductCount = async (req, res) => {
 };
 
 // get popular products
-module.exports.getPopularProducts= async (req,res)=>{
-  try{
+(module.exports.getPopularProducts = async (req, res) => {
+  try {
     const products = await productModal.find({
       isPopular: true,
     });
@@ -234,7 +234,7 @@ module.exports.getPopularProducts= async (req,res)=>{
         data: { products },
       },
     });
-  }catch(err){
+  } catch (err) {
     res.status(500).send({
       data: {
         error: err.message,
@@ -242,77 +242,77 @@ module.exports.getPopularProducts= async (req,res)=>{
       },
     });
   }
-},
-// get New Arrival
-module.exports.getNewArrival = async (req,res)=>{
-try{
-const products = await productModal.find({
-  isNewArrival: true,
-});
-res.send({
-  data: {
-    message: "New Arrival Products Retrieved Successfully",
-    status: 200,
-    data: { products },
-  },
-});
-}catch(err){
-  res.status(500).send({
-    data:{
-      error:err.message,
-      status:500
-    }
-  })
-}
-}
-
-// get all discount products
-module.exports.getDiscountProducts = async (req,res)=>{
-try{
-const products = await productModal.find({
-  isDiscount: true,
-});
-res.send({
-  data: {
-    message: "Discount Products Retrieved Successfully",
-    status: 200,
-    data: { products },
-  },
-});
-}catch(err){
-  res.status(500).send({
-    data:{
-      error:err.message,
-      status:500
-    }
-  })
-}
-},
-// get Single product controller
-module.exports.getproductById = async (req, res) => {
-  try {
-    const product = await productModal.findById(req.params.id);
-    if (!product) {
-      res.status(400).send({
+}),
+  // get New Arrival
+  (module.exports.getNewArrival = async (req, res) => {
+    try {
+      const products = await productModal.find({
+        isNewArrival: true,
+      });
+      res.send({
         data: {
-          message: "Product Not Found",
-          status: 400,
-          data: null,
+          message: "New Arrival Products Retrieved Successfully",
+          status: 200,
+          data: { products },
         },
       });
-      return;
+    } catch (err) {
+      res.status(500).send({
+        data: {
+          error: err.message,
+          status: 500,
+        },
+      });
     }
+  });
+
+// get all discount products
+(module.exports.getDiscountProducts = async (req, res) => {
+  try {
+    const products = await productModal.find({
+      isDiscount: true,
+    });
     res.send({
       data: {
-        message: "Product Retrieved Successfully",
+        message: "Discount Products Retrieved Successfully",
         status: 200,
-        data: { product },
+        data: { products },
       },
     });
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(500).send({
+      data: {
+        error: err.message,
+        status: 500,
+      },
+    });
   }
-};
+}),
+  // get Single product controller
+  (module.exports.getproductById = async (req, res) => {
+    try {
+      const product = await productModal.findById(req.params.id);
+      if (!product) {
+        res.status(400).send({
+          data: {
+            message: "Product Not Found",
+            status: 400,
+            data: null,
+          },
+        });
+        return;
+      }
+      res.send({
+        data: {
+          message: "Product Retrieved Successfully",
+          status: 200,
+          data: { product },
+        },
+      });
+    } catch (err) {
+      res.status(400).send(err.message);
+    }
+  });
 
 // Update product controller
 module.exports.updateProduct = async (req, res) => {
