@@ -21,7 +21,7 @@ module.exports.createProduct = async (req, res) => {
     } = req.body;
 
     // Base URL for serving images
-    const baseUrl = process.env.BASE_URL || "http://localhost:3000"; // Use your domain in production
+    const baseUrl = process.env.BASE_URL || "http://localhost:4000"; // Use your domain in production
 
     // Construct the full URL of the uploaded image
     const imagePath = `${baseUrl}/images/${req.file.filename}`;
@@ -67,13 +67,15 @@ module.exports.createProduct = async (req, res) => {
 module.exports.getProducts = async (req, res) => {
   try {
     const {
-      page = 1,
-      limit = 10,
+      page = page,
+      limit = limit,
       category,
       discount,
       isNewArrival,
       isPopular,
     } = req.query;
+    console.log(page, limit);
+    
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const filters = {};
 

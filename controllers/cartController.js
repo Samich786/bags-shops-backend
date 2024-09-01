@@ -5,6 +5,8 @@ const userModal = require("../models/userModal");
 // Controller function
 module.exports.addToCart = async (req, res) => {
   try {
+    console.log(req.body);
+    
     const { productId, quantity } = req.body;
     const userId = req.user._id;
 

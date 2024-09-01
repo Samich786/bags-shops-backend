@@ -12,7 +12,7 @@ const productSchema = new mongoose.Schema({
     percentageValue: {
       type: Number,
       default: 0,
-    }, // Discount percentage value
+    }, // Discount percentage valueapp
     endDate: {
       type: Date,
     }, // End date of the discount
