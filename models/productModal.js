@@ -15,6 +15,7 @@ const productSchema = new mongoose.Schema({
     }, // Discount percentage valueapp
     endDate: {
       type: Date,
+      default: "",
     }, // End date of the discount
   },
   rating: {
@@ -22,19 +23,23 @@ const productSchema = new mongoose.Schema({
     default: 0,
   },
   // panelcolor: String,
-  isNewArrival: { // Boolean to mark new arrivals
+  isNewArrival: {
+    // Boolean to mark new arrivals
     type: Boolean,
     default: false,
   },
-  isPopular: { // Boolean to mark popular products
+  isPopular: {
+    // Boolean to mark popular products
     type: Boolean,
     default: false,
   },
-  isDiscount: { // Boolean to mark discounted products
+  isDiscount: {
+    // Boolean to mark discounted products
     type: Boolean,
     default: false,
   },
-  createdAt: { // Creation date for sorting and filtering by new arrivals
+  createdAt: {
+    // Creation date for sorting and filtering by new arrivals
     type: Date,
     default: Date.now,
   },
