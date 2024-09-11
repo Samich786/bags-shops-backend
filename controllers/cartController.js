@@ -59,10 +59,14 @@ module.exports.addToCart = async (req, res) => {
     }
 
     // Calculate total price of cart
-    const itemTotals = await Promise.all(
+    const itemTotals = await Promise.all( 
       cart.items.map(async (item) => {
         const product = await productModal.findById(item.products);
-        return product.price * item.quantity;
+        if (product.discountPrice) {
+          return product.discountPrice * item.quantity;
+        } else {
+          return product.price * item.quantity;
+        }
       })
     );
 
