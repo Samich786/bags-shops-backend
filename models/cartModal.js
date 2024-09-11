@@ -24,6 +24,10 @@ const cartSchema = new Schema({
     type: Number,
     default: 0,
   },
+  totalQunatity: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

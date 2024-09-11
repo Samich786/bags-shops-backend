@@ -6,7 +6,7 @@ const userModal = require("../models/userModal");
 module.exports.addToCart = async (req, res) => {
   try {
     console.log(req.body);
-    
+
     const { productId, quantity } = req.body;
     const userId = req.user._id;
 
@@ -67,6 +67,11 @@ module.exports.addToCart = async (req, res) => {
     );
 
     cart.total = itemTotals.reduce((acc, curr) => acc + curr, 0);
+    // Assuming cart.items is an array of products with a quantity property
+    cart.totalQunatity = cart.items.reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    );
 
     // Save cart to database
     await cart.save();
@@ -92,12 +97,12 @@ module.exports.addToCart = async (req, res) => {
 module.exports.getCart = async (req, res) => {
   try {
     const user = req.user._id;
-    // console.log(user, "user");
+    console.log(user, "usertyrtytrytrytryr");
 
     const cart = await cartModal
       .find({ user })
-      .populate({ path: "items.products", model: "products" });
-    // console.log(cart);
+      .populate({ path: "items.products", model: "product" });
+    console.log(cart);
 
     if (!cart) {
       res.status(400).send({

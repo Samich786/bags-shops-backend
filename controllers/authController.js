@@ -31,10 +31,10 @@ const generateToken = require("../utils/generateToken");
           role: "user",
           picture: imagePath, // Store the file path in the database
         });
-        res.status(201).send({
+        res.status(200).send({
           data: {
             message: "User created successfully",
-            status: 201,
+            status: 200,
           },
         });
       });
