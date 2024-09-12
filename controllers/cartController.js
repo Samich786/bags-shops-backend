@@ -207,6 +207,10 @@ module.exports.removeFromCart = async (req, res) => {
     );
 
     cart.total = itemTotals.reduce((acc, curr) => acc + curr, 0);
+    cart.totalQunatity = cart.items.reduce(
+      (sum, item) => sum + item.quantity,
+      0
+    );
 
     // Save the updated cart
     await cart.save();
