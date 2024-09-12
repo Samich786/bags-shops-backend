@@ -2,9 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-const cron = require('node-cron');
-const updateExpiredDiscounts = require('./cronJobs/updateExpiredDiscounts');
-
+const cron = require("node-cron");
+const updateExpiredDiscounts = require("./cronJobs/updateExpiredDiscounts");
 
 const ownerRouter = require("./routes/ownerRouter");
 const productRouter = require("./routes/productRouter");
@@ -31,10 +30,9 @@ app.use("/users", userRouter);
 app.use("/products", productRouter);
 app.use("/auth", authRouter);
 
-
 // Schedule the cron job to run every day at midnight
-cron.schedule('30 14 * * *', () => {
-  console.log('Running the updateExpiredDiscounts cron job...');
+cron.schedule("30 14 * * *", () => {
+  console.log("Running the updateExpiredDiscounts cron job...");
   updateExpiredDiscounts();
 });
 
@@ -48,3 +46,4 @@ app.use((err, req, res, next) => {
 app.listen(4000, () => {
   console.log(`Server is running on ${BASE_URL}`);
 });
+// fsvb mula zhfv lcka   NodeApp  my app password
