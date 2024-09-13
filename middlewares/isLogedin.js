@@ -1,41 +1,46 @@
-// userMiddleware.js
 const jwt = require("jsonwebtoken");
 const userModal = require("../models/userModal");
 const JWT_KEY = process.env.JWT_KEY;
 
 const isLogedin = async (req, res, next) => {
   try {
-    // Extract the token directly
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
 
-    if (token) {
-      jwt.verify(token, JWT_KEY, async (err, decoded) => {
-        if (err) {
-          console.error("JWT verification error (User):", err); // Detailed error logging
-          res.status(401).send("Invalid token");
-        } else {
-          const { id } = decoded;
-          try {
-            const user = await userModal.findById(id);
-            if (user) {
-              req.user = user;
-              next();
-            } else {
-              res.status(401).send("Invalid token");
-            }
-          } catch (error) {
-            console.error("Error fetching user:", error); // Detailed error logging
-            res.status(401).send("Error fetching user");
-          }
-        }
-      });
-    } else {
-      res.status(401).send("Unauthorized");
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized, token missing" });
     }
+
+    jwt.verify(token, JWT_KEY, async (err, decoded) => {
+      if (err) {
+        if (err.name === "TokenExpiredError") {
+          return res
+            .status(401)
+            .json({ message: "User token expired", code: "TOKEN_EXPIRED" });
+        }
+        return res
+          .status(401)
+          .json({ message: "Invalid token", code: "TOKEN_INVALID" });
+      }
+
+      try {
+        const user = await userModal.findById(decoded.id);
+        if (!user) {
+          return res
+            .status(401)
+            .json({ message: "Invalid token, user not found" });
+        }
+
+        req.user = user;
+        next(); // User found, proceed
+      } catch (dbError) {
+        console.error("Error fetching user:", dbError);
+        return res.status(500).json({ message: "Error fetching user" });
+      }
+    });
   } catch (error) {
-    console.error("Middleware error:", error); // Detailed error logging
-    res.status(401).send("Unauthorized");
+    console.error("Middleware error (User):", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 

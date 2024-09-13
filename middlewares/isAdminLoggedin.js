@@ -1,44 +1,42 @@
-// ownerMiddleware.js
 const jwt = require("jsonwebtoken");
 const ownerModal = require("../models/ownerModal");
 const JWT_KEY = process.env.JWT_KEY;
 
 const isAdminLoggedin = async (req, res, next) => {
   try {
-    // Extract the token directly
-
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
 
-    if (token) {
-      jwt.verify(token, JWT_KEY, async (err, decoded) => {
-        if (err) {
-          console.error("JWT verification error (Owner):", err); // Detailed error logging
-          return next(); // Call next to allow checkLoggedIn to try the next middleware
-        } else {
-          const { id } = decoded;
-          // console.log(id);
-          try {
-            const owner = await ownerModal.findOne({ _id: id });
-
-            if (owner) {
-              req.owner = owner;
-              return next();
-            } else {
-              return next(); // Continue to checkLoggedIn for user check
-            }
-          } catch (error) {
-            console.error("Error fetching owner:", error); // Detailed error logging
-            return next(); // Continue to checkLoggedIn for user check
-          }
-        }
-      });
-    } else {
-      return next(); // Continue to checkLoggedIn for user check
+    if (!token) {
+      return next(); // No token, let `checkLoggedIn` proceed to user check
     }
+
+    jwt.verify(token, JWT_KEY, async (err, decoded) => {
+      if (err) {
+        if (err.name === "TokenExpiredError") {
+          return res
+            .status(401)
+            .json({ message: "Owner token expired", code: "TOKEN_EXPIRED" });
+        }
+        return next(); // Let `checkLoggedIn` proceed if token is invalid for owner
+      }
+
+      try {
+        const owner = await ownerModal.findById(decoded.id);
+        if (!owner) {
+          return next(); // Proceed to user check if no owner is found
+        }
+
+        req.owner = owner;
+        return next(); // Owner found, proceed
+      } catch (dbError) {
+        console.error("Error fetching owner:", dbError);
+        return res.status(500).json({ message: "Error fetching owner" });
+      }
+    });
   } catch (error) {
-    console.error("Middleware error:", error); // Detailed error logging
-    return next(); // Continue to checkLoggedIn for user check
+    console.error("Middleware error (Owner):", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 

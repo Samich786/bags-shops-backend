@@ -2,28 +2,23 @@ const isAdminLoggedin = require("../middlewares/isAdminLoggedin");
 const isLogedin = require("../middlewares/isLogedin");
 
 const checkLoggedIn = (req, res, next) => {
-  // First, try the owner middleware
-
-  isAdminLoggedin(req, res, (ownerErr) => {
-    if (!ownerErr && req.owner) {
-      // If no error and owner is set, proceed
+  isAdminLoggedin(req, res, () => {
+    if (req.owner) {
+      // Admin/Owner is authenticated, proceed
       return next();
     }
 
-    // If not an owner, try the user middleware
-    isLogedin(req, res, (userErr) => {
-      if (!userErr && req.user) {
-        // If no error and user is set, proceed
+    // If not an admin, proceed to user authentication
+    isLogedin(req, res, () => {
+      if (req.user) {
+        // User is authenticated, proceed
         return next();
       }
 
       // If both fail, send unauthorized response
-      res.status(401).send({
-        data: {
-          message: "Not Authorized",
-          status: 401,
-          data: null,
-        },
+      return res.status(401).json({
+        message: "Not Authorized",
+        status: 401,
       });
     });
   });

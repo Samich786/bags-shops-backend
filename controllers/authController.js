@@ -77,24 +77,18 @@ const generateToken = require("../utils/generateToken");
           return res.status(404).send("Invalid email or password");
         }
 
-        // Generate token
-        let token = generateToken(user);
+        // Generate access and refresh tokens
+        const { accessToken, refreshToken } = generateToken(user);
 
-        // Send cookie and response
-        res.cookie("token", token, {
-          httpOnly: true, // Prevents JavaScript from accessing the cookie
-          secure: false, // Change to true in production
-          sameSite: "Strict", // Helps prevent CSRF attacks
-          maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
-        });
-
+        // Send the tokens in the response
         res.send({
           data: {
             message: "Login Successful",
             status: 200,
             data: {
-              token: token,
-              userType: userType, // Include userType in response
+              accessToken: accessToken,
+              refreshToken: refreshToken, // Include the refresh token in the response
+              userType: userType,
             },
           },
         });
