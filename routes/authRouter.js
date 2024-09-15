@@ -8,7 +8,7 @@ console.log(process.env.NODE_ENV);
 // me api setting
 
 router.post("/login", loginUser);
-// router.post("/refresh-token", getRefreshToken);
+router.post("/refresh-token", getRefreshToken);
 router.get("/me", checkLoggedIn, (req, res) => {
   // Send a JSON response to the client
   const authHeader = req.headers.authorization;

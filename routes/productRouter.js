@@ -1,7 +1,7 @@
 const express = require("express");
 
 const router = express.Router();
-const { createProduct , getProducts  , updateProduct , deleteProduct, getproductById, getDiscountProducts, getNewArrival, getPopularProducts , getCategoriesWithProductCount } = require("../controllers/productController");
+const { createProduct , getProducts  , updateProduct , deleteProduct, getproductById, getDiscountProducts, getNewArrival, getPopularProducts , getCategoriesWithProductCount, getByCategory } = require("../controllers/productController");
 const {getCart, addToCart, removeFromCart} = require('../controllers/cartController');
 const upload = require("../utils/multer");
 const checkedLoginUser = require("../middlewares/checkedLoginUser");
@@ -15,6 +15,7 @@ router.get("/discountproducts", checkedLoginUser, getDiscountProducts);
 router.get("/newarrialproducts", checkedLoginUser, getNewArrival); 
 router.get("/popularproducts", checkedLoginUser, getPopularProducts);
 router.get("/categortcount", checkedLoginUser, getCategoriesWithProductCount);
+router.get("/productbycategory/:category", checkedLoginUser, getByCategory);
 
 router.post(
   "/create",

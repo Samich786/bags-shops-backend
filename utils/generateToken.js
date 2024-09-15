@@ -8,6 +8,7 @@ module.exports = (user) => {
     userType: user.userType,
   };
   const refreshPayload = {
+    id: user.id,
     refreshTokenId: uuidv4(), // Unique identifier for each refresh token
     issuedAt: new Date().toISOString(), // Current timestamp
   };

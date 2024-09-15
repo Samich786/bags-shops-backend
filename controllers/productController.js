@@ -268,6 +268,31 @@ module.exports.getCategoriesWithProductCount = async (req, res) => {
     }
   });
 
+  (module.exports.getByCategory = async (req, res) => {
+
+    try {
+      const { category } = req.params;
+      console.log(category);
+      
+      const products = await productModal.find({
+        category: category,
+      });
+      res.send({
+        data: {
+          message: `${category} Products Retrieved Successfully`,
+          status: 200,
+          data: { products },
+        },
+      });
+    } catch (err) {
+      res.status(500).send({
+        data: {
+          error: err.message,
+          status: 500,
+        },
+      });
+    }
+  });
 // get all discount products
 (module.exports.getDiscountProducts = async (req, res) => {
   try {

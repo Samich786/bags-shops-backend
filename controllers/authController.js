@@ -2,6 +2,7 @@ const userModal = require("../models/userModal");
 const ownerModal = require("../models/ownerModal");
 const bcrypt = require("bcrypt");
 const generateToken = require("../utils/generateToken");
+const jwt = require("jsonwebtoken");
 
 // Setup multer storage
 
@@ -103,6 +104,33 @@ const generateToken = require("../utils/generateToken");
     }
   });
 
+  module.exports.getRefreshToken = async (req, res) => {
+    try {
+      const { refreshToken } = req.body;
+    
+      if (!refreshToken) {
+        return res.status(403).send("Refresh token required");
+      }
+    
+      // Verify refresh token
+      jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, async (err, user) => {
+        if (err) {
+          return res.status(403).send("Invalid refresh token");
+        }
+        const getUser = await userModal.findById(user.id);
+        const { accessToken, refreshToken } = generateToken(getUser);
+        // Send the new access token
+        res.json({ accessToken: accessToken, refreshToken: refreshToken });
+      });
+    } catch (err) {
+      res.status(500).send({
+        data: {
+          message: err.message,
+          status: 500,
+        },
+      });
+    }
+  };
 // Controller function get user controller
 module.exports.getUser = async (req, res) => {
   try {
