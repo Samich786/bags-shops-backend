@@ -2,6 +2,8 @@ const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 
 module.exports = (user) => {
+  // console.log(user);
+
   const payload = {
     id: user.id,
     email: user.email,
@@ -9,6 +11,7 @@ module.exports = (user) => {
   };
   const refreshPayload = {
     id: user.id,
+    // userType: user.userType,
     refreshTokenId: uuidv4(), // Unique identifier for each refresh token
     issuedAt: new Date().toISOString(), // Current timestamp
   };

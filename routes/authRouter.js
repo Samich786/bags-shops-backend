@@ -1,13 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const checkLoggedIn = require("../middlewares/checkedLoginUser");
-const { loginUser, getRefreshToken } = require("../controllers/authController");
+const {
+  loginUser,
+  getRefreshToken,
+  googleLogin,
+} = require("../controllers/authController");
 const e = require("express");
 console.log(process.env.NODE_ENV);
 
 // me api setting
 
 router.post("/login", loginUser);
+router.post("/googleLogin", googleLogin);
 router.post("/refresh-token", getRefreshToken);
 router.get("/me", checkLoggedIn, (req, res) => {
   // Send a JSON response to the client

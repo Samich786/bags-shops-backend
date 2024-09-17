@@ -1,3 +1,4 @@
+const { OAuth2Client } = require("google-auth-library");
 const userModal = require("../models/userModal");
 const ownerModal = require("../models/ownerModal");
 const bcrypt = require("bcrypt");
@@ -103,25 +104,87 @@ const jwt = require("jsonwebtoken");
       });
     }
   });
+//  Login with Google controller
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+(module.exports.googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+    console.log(token);
 
-  module.exports.getRefreshToken = async (req, res) => {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    console.log(ticket);
+    // get user profile
+    const payload = ticket?.payload;
+    const googleid = payload.sub;
+    const email = payload.email;
+    const name = payload.name;
+    console.log(name);
+
+    let user = await userModal.findOne({ email: email });
+    if (!user) {
+      user = await userModal.create({
+        fullname: name,
+        email: email,
+        password: null,
+        contact: null,
+        role: "user",
+        picture: null,
+        // Store the file path in the database
+      });
+    }
+    const { accessToken, refreshToken } = generateToken(user);
+    res.send({
+      data: {
+        message: "Login Successful",
+        status: 200,
+        data: {
+          accessToken: accessToken,
+          refreshToken: refreshToken, // Include the refresh token in the response
+        },
+      },
+    });
+  } catch (err) {
+    res.status(500).send({
+      data: {
+        message: err.message,
+        status: 500,
+      },
+    });
+  }
+}),
+  (module.exports.getRefreshToken = async (req, res) => {
     try {
       const { refreshToken } = req.body;
-    
+
       if (!refreshToken) {
         return res.status(403).send("Refresh token required");
       }
-    
+
       // Verify refresh token
-      jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, async (err, user) => {
-        if (err) {
-          return res.status(403).send("Invalid refresh token");
+      jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_KEY,
+        async (err, user) => {
+          if (err) {
+            return res.status(403).send("Invalid refresh token");
+          }
+          console.log(user, "user");
+          if (user.userType === "owner") {
+            const getUser = await ownerModal.findById(user.id);
+            const { accessToken, refreshToken } = generateToken(getUser);
+            res.json({ accessToken: accessToken, refreshToken: refreshToken });
+          } else {
+            const getUser = await userModal.findById(user.id);
+            const { accessToken, refreshToken } = generateToken(getUser);
+            res.json({ accessToken: accessToken, refreshToken: refreshToken });
+          }
+
+          // Send the new access token
         }
-        const getUser = await userModal.findById(user.id);
-        const { accessToken, refreshToken } = generateToken(getUser);
-        // Send the new access token
-        res.json({ accessToken: accessToken, refreshToken: refreshToken });
-      });
+      );
     } catch (err) {
       res.status(500).send({
         data: {
@@ -130,7 +193,7 @@ const jwt = require("jsonwebtoken");
         },
       });
     }
-  };
+  });
 // Controller function get user controller
 module.exports.getUser = async (req, res) => {
   try {
